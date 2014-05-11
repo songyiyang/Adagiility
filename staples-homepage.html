@@ -1,0 +1,282 @@
+
+<!-- saved from url=(0046)http://www.adagility.com/dev/staples-homepage/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
+body{
+	font-family: arial;
+	font-size:14px;
+}
+
+.adZone{
+	border:1px solid #ccc;
+	width:400px;
+	height:170px;
+}
+
+.adZone .headline{
+	font-family: arial;
+	text-align: center;
+	background-color: #0092db;
+	color:#fff;
+	border-bottom:1px solid #ccc;
+	display: block;
+	line-height: 28px;
+}
+
+.insertAd{
+    width:100%;
+    height:80%;
+    overflow: auto;
+    background-color: white;
+}
+
+#no-avi{
+    cursor:default;
+    margin-left:20px;
+}
+#no-avi-ad{
+    cursor:default;
+    margin-left:27px;
+}
+#web{
+    cursor:pointer;
+    color:green;
+}
+#web:hover{
+    color:red;
+}
+
+.head {
+    color:#0079c1;
+    cursor:pointer;
+}
+
+#line_1, #line_2 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;;
+    color:#777;
+    cursor:default;
+}
+
+#list {
+    left:20px;
+}
+#li_0, #li_1, #li_2, #li_3{
+    background-color: white;
+}
+
+.img {
+    top:84px;
+    position:absolute;
+    width:100px;
+    left:260px;
+
+}
+#next, #prev{
+    visibility:hidden;
+}
+
+</style>
+
+</head><body>
+<script src="jquery.js"></script>
+<script src="cycle.js"></script>
+
+<b>Project Summary</b>
+<p>Staples has asked AdAgility to design a new ad container for their homepage that will present users with one of several credit card processing products including: Square, PayPal, Intuit, or Pay Anywhere. Eventually Staples might want to ad additional advertisers into the mix.  To work on this project you can save a copy of this page and work on it locally.</p>
+
+<b>Project Requirements:</b>
+<ul>
+	<li>Use javascript, css, html to show an ad to a user and dynamically insert it into the container provided below</li>
+	<li>Use the ads JSON object to determine the headline, line_1, and line_2 text</li>
+	<li>Include a way for the user to click the ad so they can visit the advertiser website</li>
+	<li>Use javascript / randomization to pick which ad to show (only one ad should be displayed to the user)</li>
+</ul>
+
+
+<b>Additional Ideas to Consider (extra credit):</b>
+<ul>
+	<li>Use the advertiser_weight value to increase/decrease the chances of the ad showing up.  The higher the weight the better the chance of the ad showing up.</li>
+	<li>Consider extra styles, UI/UX tweaks for the ad</li>
+	<li>Add a photo or logo thumbnail to each ad to make it more visually appealing</li>
+	<li>Can your solution handle an instance where no ads are available?  How about 10 ads in the JSON ads object?</li>
+	<li>Consider allowing users to scroll left or right to view the other ads</li>
+	<li>Consider allowing a new ad to appear every 5 seconds</li>
+</ul>
+
+
+<p>
+E-mail nick with any questions.
+</p>
+
+<div class="adZone">
+	<span class="headline">Special Offer for Staples Customers</span>
+	<div class="insertAd">
+		<!-- dynamically insert the ad here -->
+	</div>
+</div>
+<button id="next">next</button>
+<button id="prev">prev</button>
+<script>
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+/*jslint white: true */
+/*jshint loopfunc: true */
+"use strict";
+
+var ads = [
+    {
+        "advertiser_name": "Paypal",
+        "advertiser_weight": 5,
+        "headline": "Free Credit Card Reader‎ from PayPal",
+        "line_1": "Free Terminal & Setup. Fast & Easy!",
+        "line_2": "No Contract. No Hidden Fees.",
+        "clickthrough_url": "https://www.paypal.com/us/webapps/mpp/credit-card-reader"
+     }, {
+        "advertiser_name": "Square",
+        "advertiser_weight": 100,
+        "headline": "Free Credit Card Reader‎ from Square",
+        "line_1": "Just 2.7% Per Swipe",
+        "line_2": "Quick Cash and 1% Back",
+        "clickthrough_url": "http://www.squareup.com"
+     }, {
+        "advertiser_name": "Intuit",
+        "advertiser_weight": 30,
+        "headline": "Free Reader & App from Intuit",
+        "line_1": "Accept Credit Cards Anywhere",
+        "line_2": "Receive a FREE mobile card reader",
+        "clickthrough_url": "http://intuit-gopayment.com/"
+     }, {
+        "advertiser_name": "Pay Anywhere",
+        "advertiser_weight": 5,
+        "headline": "The smart way to get paid.",
+        "line_1": "Accept Credit Cards Anywhere",
+        "line_2": "Receive a FREE mobile card reader",
+        "clickthrough_url": "http://freereader.payanywhere.com/"
+     }
+];
+
+/*** all your code should go below this line ***/
+var pickOne,
+    pickPic,
+    getDiv,
+    clickFunc;
+
+$(document).ready(function(){
+    var time = [],
+        state = [],
+        count = 0,
+        pick,
+        div;
+    $('.insertAd').append('<ul id=list></ul>');
+    while(count < ads.length){
+        pick = pickOne();
+        div = getDiv(pick, count);
+        if($.inArray(pick, state) === -1){
+            state.push(pick);
+            $('#list').append(div);
+            clickFunc(count);
+            count += 1;
+        }
+    }
+    if($('#list').children().length === 0){
+        $('#list').append("<h2 id='no-avi'>No Ads Available right now!</h2>");
+        $('#list').append("<h3 id='no-avi-ad'>Checkout our <span id='web'>website</span> to see more.</h2>");
+        $('#web').click(function(){
+            window.open("http://adagility.com/");
+        });
+    }else{
+        $('#list').cycle({
+            fx: 'scrollHorz',
+            speed: 1500,
+            timeout: 5000,
+            next: "#next",
+            prev: '#prev'
+        });
+        $('.insertAd').bind('mousewheel', function(event){
+            var l;
+            if (event.originalEvent.wheelDeltaX < 0){
+                time.push(event.timeStamp);
+                l = time.length;
+                if((time.length < 2 || (time[l-1] - time[l-2]) > 500) ){
+                    $('#next').click();
+                }
+            }else{
+                time.push(event.timeStamp);
+                l = time.length;
+                if((time.length < 2 || (time[l-1] - time[l-2]) > 500) ){
+                    $('#prev').click();
+                }
+            }
+            $('.insertAd').scrollLeft(1);
+            $('.insertAd').scrollTop(1);
+        });
+    }
+});
+
+pickOne = function(){
+    var sum = 0,
+    state = [],
+    random = 0,
+    pick = 0,
+    i = 0;
+    for(i=0 ; i < ads.length; i += 1){
+        sum += ads[i].advertiser_weight;
+        state.push(sum);
+    }
+    random = Math.ceil((Math.random() * sum));
+    for(i = 0; i < state.length; i += 1){
+        if(state[i] >= random){
+            pick = i;
+            break;
+        }
+    }
+    return pick;
+};
+
+getDiv = function(pick, i){
+    var divsion = document.createElement('li'),
+        headline = document.createElement('h2'),
+        line_1 = document.createElement('p'),
+        line_2 = document.createElement('p'),
+        img = document.createElement('img');
+    divsion.id = "li_" + i;
+    headline.id = "head_" + i;
+    line_1.id = "line_1";
+    line_2.id = "line_2";
+    headline.setAttribute('class', 'head');
+    headline.setAttribute('data-url', ads[pick].clickthrough_url);
+    img.setAttribute('class', 'img');
+    headline.innerHTML = ads[pick].headline;
+    line_1.innerHTML = ads[pick].line_1;
+    line_2.innerHTML = ads[pick].line_2;
+    divsion.appendChild(headline);
+    divsion.appendChild(line_1);
+    divsion.appendChild(line_2);
+    img = pickPic(img, pick);
+    divsion.appendChild(img);
+    return divsion;
+};
+
+pickPic = function(img, pick){
+    if (pick === 0){
+        img.setAttribute('src', 'http://i.imgur.com/D8NpIvd.png');
+    }
+    else if (pick === 1){
+        img.setAttribute('src', 'http://i.imgur.com/ah77cbO.jpg');
+    }
+    else if (pick === 2){
+        img.setAttribute('src', 'http://i.imgur.com/gcx6sme.png');
+    }
+    else if (pick === 3){
+        img.setAttribute('src', 'http://i.imgur.com/9FbMoJP.jpg');
+    }
+    img.setAttribute('alt', 'pic');
+    return img;
+};
+
+clickFunc = function(count){
+    $('#head_' + count).click(function(){
+        window.open(this.getAttribute('data-url'));
+    });
+};
+</script>
+</body></html>
